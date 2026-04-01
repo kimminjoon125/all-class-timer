@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>수업/자습 시간 타이머</title>
+    <title>수업/자습 시간 타이머 - 다크 모드</title>
     <style>
         @font-face {
             font-family: 'Pretendard';
@@ -13,15 +13,34 @@
         }
         @font-face {
             font-family: 'Pretendard';
-            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Medium.woff2') format('woff2');
-            font-weight: 500;
-            font-display: swap;
-        }
-        @font-face {
-            font-family: 'Pretendard';
             src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-SemiBold.woff2') format('woff2');
             font-weight: 600;
             font-display: swap;
+        }
+
+        /* 테마 변수 설정 */
+        :root {
+            --bg-color: #f5f7fa;
+            --container-bg: #ffffff;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --accent-color: #007bff;
+            --border-color: #e1e1e1;
+            --btn-bg: #ffffff;
+            --btn-text: #666666;
+            --shadow: rgba(0,0,0,0.05);
+        }
+
+        [data-theme='dark'] {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-sub: #a0a0a0;
+            --accent-color: #3793ff;
+            --border-color: #333333;
+            --btn-bg: #2a2a2a;
+            --btn-text: #a0a0a0;
+            --shadow: rgba(0,0,0,0.3);
         }
 
         body {
@@ -30,54 +49,69 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f5f7fa;
+            background-color: var(--bg-color);
             margin: 0;
+            transition: background-color 0.3s ease;
             -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            background: white;
-            padding: 2rem;
+            background: var(--container-bg);
+            padding: 2.5rem 2rem;
             border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px var(--shadow);
             text-align: center;
             width: 480px;
-            max-width: 95%;
+            max-width: 90%;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* 다크모드 토글 버튼 */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            background: none;
+            border: none;
+            padding: 0;
+            color: var(--text-sub);
         }
 
         .mode-selector {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: center;
             gap: 10px;
         }
 
         .mode-btn {
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 50px;
-            border: 1px solid #ddd;
-            background: #fff;
+            border: 1px solid var(--border-color);
+            background: var(--btn-bg);
             cursor: pointer;
             font-size: 0.9rem;
             font-weight: 600;
             transition: all 0.2s;
-            color: #666;
+            color: var(--btn-text);
         }
 
         .mode-btn.active {
-            background: #007bff;
+            background: var(--accent-color);
             color: white;
-            border-color: #007bff;
+            border-color: var(--accent-color);
         }
 
         .full-date-display {
-            font-family: 'Pretendard';
             font-size: 1.15rem;
             font-weight: 600;
-            color: #333;
-            background: #fff;
+            color: var(--text-main);
+            background: var(--container-bg);
             padding: 12px 15px;
-            border: 1px solid #e1e1e1;
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             margin-bottom: 25px;
             letter-spacing: 0.5px;
@@ -85,37 +119,36 @@
         }
 
         .content-area {
-            border-top: 1px solid #f0f0f0;
-            padding-top: 25px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 30px;
         }
 
         .timer-label {
             font-size: 1rem;
-            color: #666;
+            color: var(--text-sub);
             font-weight: 500;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .remaining-timer {
-            font-size: 3.2rem;
+            font-size: 3.5rem;
             font-weight: 600;
-            color: #007bff;
-            letter-spacing: -0.5px;
+            color: var(--accent-color);
+            letter-spacing: -1px;
             margin: 0;
             line-height: 1.2;
         }
 
         .status-msg {
-            color: #666;
-            font-size: 0.9rem;
+            color: var(--text-sub);
+            font-size: 0.95rem;
             font-weight: 400;
-            margin-top: 20px;
-            white-space: nowrap;
+            margin-top: 25px;
         }
 
         #syncStatus {
             font-size: 0.75rem;
-            margin-top: 15px;
+            margin-top: 20px;
             font-weight: 500;
             transition: opacity 0.5s;
         }
@@ -123,17 +156,22 @@
 </head>
 <body>
     <div class="container">
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
+        
         <div class="mode-selector">
-            <button class="mode-btn active" onclick="setMode('weekday')">주중(수업)</button>
-            <button class="mode-btn" onclick="setMode('weekend')">주말(자습)</button>
+            <button class="mode-btn active" id="btn-weekday" onclick="setMode('weekday')">주중(수업)</button>
+            <button class="mode-btn" id="btn-weekend" onclick="setMode('weekend')">주말(자습)</button>
         </div>
+        
         <div id="fullDateDisplay" class="full-date-display">0000/00/00   00:00:00   월요일</div>
+        
         <div class="content-area">
             <div class="timer-label" id="periodLabel">- 종료까지</div>
             <div class="remaining-timer" id="remainingValue">00:00:00</div>
             <div class="status-msg" id="statusMsg">데이터 로드 중...</div>
         </div>
-        <div id="syncStatus" style="color: #007bff;">서버 시간 동기화 중...</div>
+        
+        <div id="syncStatus" style="color: var(--accent-color);">서버 시간 동기화 중...</div>
     </div>
 
     <script>
@@ -164,12 +202,23 @@
         let currentMode = 'weekday';
         let timeOffset = 0;
 
+        // 테마 토글 함수
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('themeBtn');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                btn.innerText = '🌙';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                btn.innerText = '☀️';
+            }
+        }
+
         function setMode(mode) {
             currentMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.innerText.includes(mode === 'weekday' ? '주중' : '주말')) btn.classList.add('active');
-            });
+            document.getElementById('btn-weekday').classList.toggle('active', mode === 'weekday');
+            document.getElementById('btn-weekend').classList.toggle('active', mode === 'weekend');
             updateTimer();
         }
 
@@ -199,8 +248,7 @@
                     syncLabel.style.color = "#4caf50";
                     setTimeout(() => syncLabel.style.opacity = '0.3', 5000);
                     return;
-                } catch (e) {
-                }
+                } catch (e) {}
             }
             syncLabel.innerText = "○ 동기화 실패 (로컬 시간 사용)";
             syncLabel.style.color = "#ff4d4f";
@@ -215,14 +263,13 @@
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
             const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
-            const dayName = days[now.getDay()];
-
-            document.getElementById('fullDateDisplay').innerText = `${year}/${month}/${date}   ${h}:${m}:${s}   ${dayName}`;
+            
+            document.getElementById('fullDateDisplay').innerText = `${year}/${month}/${date}   ${h}:${m}:${s}   ${days[now.getDay()]}`;
 
             const currentSchedule = schedules[currentMode];
             let remainingStr = "00:00:00";
             let periodName = currentMode === 'weekday' ? "-교시" : "자습 -차시";
-            let statusText = "현재 수업이 없습니다.";
+            let statusText = "현재 예정된 일정이 없습니다.";
 
             for (const session of currentSchedule) {
                 const startTime = new Date(now);
@@ -234,9 +281,9 @@
                     periodName = session.name;
                     statusText = `${session.name}가 진행 중입니다.`;
                     const diff = endTime - now;
-                    const diffH = Math.floor(diff / (1000 * 60 * 60));
-                    const diffM = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const diffS = Math.floor((diff % (1000 * 60)) / 1000);
+                    const diffH = Math.floor(diff / 3600000);
+                    const diffM = Math.floor((diff % 3600000) / 60000);
+                    const diffS = Math.floor((diff % 60000) / 1000);
                     remainingStr = `${String(diffH).padStart(2, '0')}:${String(diffM).padStart(2, '0')}:${String(diffS).padStart(2, '0')}`;
                     break;
                 }

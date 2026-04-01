@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>수업/자습 시간 타이머 - 다크 모드</title>
+    <title>수업/자습 시간 타이머</title>
     <style>
         @font-face {
             font-family: 'Pretendard';
@@ -11,6 +12,7 @@
             font-weight: 400;
             font-display: swap;
         }
+
         @font-face {
             font-family: 'Pretendard';
             src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-SemiBold.woff2') format('woff2');
@@ -28,7 +30,8 @@
             --border-color: #e1e1e1;
             --btn-bg: #ffffff;
             --btn-text: #666666;
-            --shadow: rgba(0,0,0,0.05);
+            --shadow: rgba(0, 0, 0, 0.05);
+            --footer-text: #999999;
         }
 
         [data-theme='dark'] {
@@ -40,12 +43,14 @@
             --border-color: #333333;
             --btn-bg: #2a2a2a;
             --btn-text: #a0a0a0;
-            --shadow: rgba(0,0,0,0.3);
+            --shadow: rgba(0, 0, 0, 0.3);
+            --footer-text: #555555;
         }
 
         body {
             font-family: 'Pretendard', sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -152,26 +157,37 @@
             font-weight: 500;
             transition: opacity 0.5s;
         }
+
+        /* 하단 저작권 문구 */
+        .footer-copyright {
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: var(--footer-text);
+            text-align: center;
+            line-height: 1.4;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
-        
         <div class="mode-selector">
             <button class="mode-btn active" id="btn-weekday" onclick="setMode('weekday')">주중(수업)</button>
             <button class="mode-btn" id="btn-weekend" onclick="setMode('weekend')">주말(자습)</button>
         </div>
-        
-        <div id="fullDateDisplay" class="full-date-display">0000/00/00   00:00:00   월요일</div>
-        
+        <div id="fullDateDisplay" class="full-date-display">0000/00/00 - 00:00:00 - 월요일</div>
         <div class="content-area">
             <div class="timer-label" id="periodLabel">- 종료까지</div>
             <div class="remaining-timer" id="remainingValue">00:00:00</div>
             <div class="status-msg" id="statusMsg">데이터 로드 중...</div>
         </div>
-        
         <div id="syncStatus" style="color: var(--accent-color);">서버 시간 동기화 중...</div>
+    </div>
+
+    <div class="footer-copyright">
+        copyright (c) 2026. 민준<br>
+        All rights reserved.
     </div>
 
     <script>
@@ -202,7 +218,6 @@
         let currentMode = 'weekday';
         let timeOffset = 0;
 
-        // 테마 토글 함수
         function toggleTheme() {
             const body = document.body;
             const btn = document.getElementById('themeBtn');
@@ -248,7 +263,7 @@
                     syncLabel.style.color = "#4caf50";
                     setTimeout(() => syncLabel.style.opacity = '0.3', 5000);
                     return;
-                } catch (e) {}
+                } catch (e) { }
             }
             syncLabel.innerText = "○ 동기화 실패 (로컬 시간 사용)";
             syncLabel.style.color = "#ff4d4f";
@@ -264,7 +279,8 @@
             const s = String(now.getSeconds()).padStart(2, '0');
             const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
             
-            document.getElementById('fullDateDisplay').innerText = `${year}/${month}/${date}   ${h}:${m}:${s}   ${days[now.getDay()]}`;
+            // 요청하신 날짜 형식으로 변경
+            document.getElementById('fullDateDisplay').innerText = `${year}/${month}/${date} - ${h}:${m}:${s} - ${days[now.getDay()]}`;
 
             const currentSchedule = schedules[currentMode];
             let remainingStr = "00:00:00";
@@ -299,4 +315,5 @@
         updateTimer();
     </script>
 </body>
+
 </html>
